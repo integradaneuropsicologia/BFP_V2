@@ -928,31 +928,25 @@
       return respostas;
     }
 
-    function buildResultsMetaPayloadBFP(answersObj, durationSec) {
-      const scores = buildScores(answersObj);
+function buildResultsMetaPayloadBFP(answersObj, durationSec) {
+  const scores = buildScores(answersObj);
 
-      const payload = Object.entries(INDICATORS_CONFIG).map(([key, cfg], index) => ({
-        ordem: index + 1,
-        codigo: key,
-        nome: cfg.label,
-        tipo: cfg.tipo,
-        pontuacao: Number((scores[key] || 0).toFixed(4)),
-        questoes: cfg.questions
-      }));
+  const payload = Object.entries(INDICATORS_CONFIG).map(([key, cfg], index) => ({
+    key: key,
+    label: cfg.label,
+    order: index + 1,
+    value: Number((scores[key] || 0).toFixed(4))
+  }));
 
-      payload.push({
-        ordem: payload.length + 1,
-        codigo: "media_global",
-        nome: "Média global",
-        tipo: "geral",
-        pontuacao: Number((scores.media_global || 0).toFixed(4)),
-        questoes: Array.from({ length: ITEMS.length }, (_, i) => i + 1),
-        total_respondido: scores.total_respondido,
-        duracao_segundos: durationSec
-      });
+  payload.push({
+    key: "media_global",
+    label: "Média global",
+    order: payload.length + 1,
+    value: Number((scores.media_global || 0).toFixed(4))
+  });
 
-      return payload;
-    }
+  return payload;
+}
 
     function validateAllAnswered() {
       document.querySelectorAll(".item.invalid").forEach(el => el.classList.remove("invalid"));
