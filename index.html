@@ -922,19 +922,22 @@
       return sums;
     }
 
-    function buildResultsPerguntasRespostasBFP(answersObj) {
-      const respostas = [];
-      ITEMS.forEach((texto, idx) => {
-        const qn = String(idx + 1).padStart(3, "0");
-        const key = `q${qn}`;
-        if (!Object.prototype.hasOwnProperty.call(answersObj, key)) return;
-        respostas.push({
-          pergunta_numero: idx + 1,
-          pergunta: texto,
-          resposta: answersObj[key]
-        });
+    function roundScoreValue(value) {
+      const numberValue = Number(value);
+      return Number.isFinite(numberValue) ? Number(numberValue.toFixed(1)) : 0;
+    }
+
+    function buildNumericResultsPayloadBFP(answersObj) {
+      const scores = buildScores(answersObj);
+      const payload = {};
+
+      Object.keys(INDICATORS_CONFIG).forEach((key) => {
+        payload[key] = roundScoreValue(scores[key]);
       });
-      return respostas;
+
+      payload.media_global = roundScoreValue(scores.media_global);
+
+      return payload;
     }
 
 function buildResultsMetaPayloadBFP(answersObj, durationSec) {
@@ -944,14 +947,14 @@ function buildResultsMetaPayloadBFP(answersObj, durationSec) {
     key: key,
     label: cfg.label,
     order: index + 1,
-    value: Number((scores[key] || 0).toFixed(4))
+    value: roundScoreValue(scores[key])
   }));
 
   payload.push({
     key: "media_global",
     label: "Média global",
     order: payload.length + 1,
-    value: Number((scores.media_global || 0).toFixed(4))
+    value: roundScoreValue(scores.media_global)
   });
 
   return payload;
@@ -1142,7 +1145,7 @@ function buildResultsMetaPayloadBFP(answersObj, durationSec) {
         validateAllAnswered();
 
         const rawPayload = formDataToObjectBFP();
-        const resultsPayload = buildResultsPerguntasRespostasBFP(rawPayload);
+        const resultsPayload = buildNumericResultsPayloadBFP(rawPayload);
         const resultsMetaPayload = buildResultsMetaPayloadBFP(rawPayload, durationSec);
 
         const { data: patient, error: patientError } = await supabaseClient
