@@ -941,23 +941,7 @@
     }
 
 function buildResultsMetaPayloadBFP(answersObj, durationSec) {
-  const scores = buildScores(answersObj);
-
-  const payload = Object.entries(INDICATORS_CONFIG).map(([key, cfg], index) => ({
-    key: key,
-    label: cfg.label,
-    order: index + 1,
-    value: roundScoreValue(scores[key])
-  }));
-
-  payload.push({
-    key: "media_global",
-    label: "Média global",
-    order: payload.length + 1,
-    value: roundScoreValue(scores.media_global)
-  });
-
-  return payload;
+  return [];
 }
 
     function validateAllAnswered() {
